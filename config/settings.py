@@ -149,7 +149,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    f"https://{env('BACKEND_URL')}",
+    f"{'https://' if not env('DEBUG') else ''}{env('BACKEND_URL')}",
     env("FRONTEND_URL"),
 ]
 
