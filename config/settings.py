@@ -148,6 +148,6 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    os.environ["BACKEND_URL"],
+    f"https://{os.environ['BACKEND_URL']}",
     os.environ["FRONTEND_URL"],
 ]
