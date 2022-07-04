@@ -1,17 +1,17 @@
-# from pathlib import Path
 import os
-# import environ
+import environ
 from rest_framework import generics, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Symptom, Diagnosis
 from .serializers import SymptomSerializer, DiagnosisSerializer
 import requests
+from django.core.cache import cache
+from common.api_utils import get_api_key
 
-# Setting up Env
-# env = environ.Env()
-# BASE_DIR = Path(__file__).resolve().parent.parent
-# environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+env = environ.Env()
+if os.environ.get("DEBUG", True):
+    environ.Env.read_env(".env")
 
 
 class SymptomList(generics.ListCreateAPIView):
@@ -21,13 +21,28 @@ class SymptomList(generics.ListCreateAPIView):
     search_fields = ["name"]
 
 
+def process_diagnosis(apiData):
+    data = []
+    for result in apiData:
+        issue = result["Issue"]
+        data.append(
+            {
+                "id": issue["ID"],
+                "name": issue["Name"],
+                "accuracy": issue["Accuracy"],
+                "ranking": issue["Ranking"],
+            }
+        )
+    return Response(data, status=200)
+
+
 class DiagnoseView(APIView):
     def get(self, request):
         symptoms = request.query_params.get("symptoms")
         user = self.request.user
 
-        API_TOKEN = os.environ["API_TOKEN"]
-        url = f"{os.environ['API_URL']}/diagnosis"
+        url = f"{env('API_URL')}/diagnosis"
+        API_TOKEN = cache.get("API_KEY") if cache.get("API_KEY") else get_api_key()
 
         apiResponse = requests.get(
             url,
@@ -40,22 +55,23 @@ class DiagnoseView(APIView):
                 "language": "en-gb",
             },
         )
-        apiData = apiResponse.json()
 
-        data = []
-        for result in apiData:
-            issue = result["Issue"]
-
-            data.append(
-                {
-                    "id": issue["ID"],
-                    "name": issue["Name"],
-                    "accuracy": issue["Accuracy"],
-                    "ranking": issue["Ranking"],
-                }
+        if apiResponse.status_code == requests.codes.ok:
+            return process_diagnosis(apiResponse.json())
+        else:
+            API_TOKEN = get_api_key()
+            apiResponse = requests.get(
+                url,
+                params={
+                    "token": API_TOKEN,
+                    "symptoms": symptoms,
+                    "gender": user.get_gender_display().lower(),
+                    "year_of_birth": user.birth_date.year,
+                    "format": "json",
+                    "language": "en-gb",
+                },
             )
-
-        return Response(data, status=200)
+            return process_diagnosis(apiResponse.json())
 
 
 class ConfirmDiagnosisView(generics.CreateAPIView):

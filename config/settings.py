@@ -14,14 +14,15 @@ from pathlib import Path
 import os
 import environ
 
-# env = environ.Env()
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-# environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+if os.environ.get("DEBUG", True):
+    environ.Env.read_env(".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -30,9 +31,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 SECRET_KEY = "django-insecure-49!c7h=dyiy8pfbhl#yu2w_aw1a@o4^6+x4=eu3*gq8g!(upqz"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ["DEBUG"]
+DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", os.environ["BACKEND_URL"], os.environ["FRONTEND_URL"]]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", env("BACKEND_URL"), env("FRONTEND_URL")]
 
 
 # Application definition
@@ -148,10 +149,11 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    f"https://{os.environ['BACKEND_URL']}",
-    os.environ["FRONTEND_URL"],
+    f"https://{env('BACKEND_URL')}",
+    env("FRONTEND_URL"),
 ]
 
 import dj_database_url
+
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES["default"].update(db_from_env)

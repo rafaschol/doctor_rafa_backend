@@ -36,7 +36,7 @@ class RegisterView(generics.CreateAPIView):
         token, created = Token.objects.get_or_create(user=user)
         data["token"] = token.key
         data["diagnostics"] = []
-        
+
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
 
