@@ -17,3 +17,6 @@ class Diagnosis(models.Model):
     user = models.ForeignKey(
         get_user_model(), related_name="diagnostics", on_delete=models.CASCADE
     )
+
+    class Meta:
+        ordering = ["-date"]
