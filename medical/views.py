@@ -1,6 +1,6 @@
-from pathlib import Path
+# from pathlib import Path
 import os
-import environ
+# import environ
 from rest_framework import generics, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,9 +9,9 @@ from .serializers import SymptomSerializer, DiagnosisSerializer
 import requests
 
 # Setting up Env
-env = environ.Env()
-BASE_DIR = Path(__file__).resolve().parent.parent
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# env = environ.Env()
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 class SymptomList(generics.ListCreateAPIView):
@@ -26,8 +26,8 @@ class DiagnoseView(APIView):
         symptoms = request.query_params.get("symptoms")
         user = self.request.user
 
-        API_TOKEN = env("API_TOKEN")
-        url = f"{env('API_URL')}/diagnosis"
+        API_TOKEN = os.environ["API_TOKEN"]
+        url = f"{os.environ['API_URL']}/diagnosis"
 
         apiResponse = requests.get(
             url,
