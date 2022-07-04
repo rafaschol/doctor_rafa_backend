@@ -31,7 +31,7 @@ if os.environ.get("DEBUG", True):
 SECRET_KEY = "django-insecure-49!c7h=dyiy8pfbhl#yu2w_aw1a@o4^6+x4=eu3*gq8g!(upqz"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+DEBUG = (env("DEBUG") == "True")
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", env("BACKEND_URL"), env("FRONTEND_URL")]
 
@@ -149,7 +149,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    f"{'https://' if not env('DEBUG') else ''}{env('BACKEND_URL')}",
+    f"{'https://' if (env('DEBUG') == 'False') else ''}{env('BACKEND_URL')}",
     env("FRONTEND_URL"),
 ]
 
