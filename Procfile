@@ -1,1 +1,1 @@
-web: gunicorn config.wsgi
+web: python manage.py migrate && python manage.py syncSymptoms && gunicorn config.wsgi
